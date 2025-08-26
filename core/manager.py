@@ -1,4 +1,5 @@
 from core.printer import Printer
+import os
 
 class PrinterManager:
     """Handles multiple printers."""
@@ -26,3 +27,24 @@ class PrinterManager:
             success = printer.logout()
             results[printer.ip] = success
         return results
+
+    def export_all_address_books(self, out_dir="exports"):
+        for printer in self.printers:
+            print(f"📡 Exporting address book from {printer.ip}...")
+        #try:
+            if not printer.request_address_book_export():
+                print(f"❌ Failed to request export on {printer.ip}")
+                continue
+
+            token = printer.poll_for_export_token()
+            if not token:
+                print(f"❌ No export token from {printer.ip}")
+                continue
+
+            file_path = f"{out_dir}/address_book_{printer.ip}.csv"
+            printer.download_address_book(token, file_path)
+            print(f"✅ Saved: {file_path}")
+
+        #except Exception as e:
+         #   print(f"[ERROR] {printer.ip}: {e}")
+

@@ -52,6 +52,11 @@ logout:
 	@echo "${(GREEN)}Logging out all printer..."
 	$(VENV_DIR)/bin/python -m scripts.logout_all
 
+# Get Adress book from all printers
+address_book:
+	@echo "Getting Adress books"
+	$(VENV_DIR)/bin/python -m scripts.get_adress_books
+
 # Run unit tests
 test: 
 	@echo "$(GREEN)Running tests...$(NC)"

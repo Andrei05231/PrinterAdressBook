@@ -8,6 +8,6 @@ def make_request(session, url, data=None, headers=None):
             response = session.get(url, headers=headers, timeout=5)
         response.raise_for_status()
         return response
-    except request.RequestException as e:
+    except requests.RequestException as e:
         print(f"[ERROR] HTTP request failed : {e}")
-        return none
+        return None
