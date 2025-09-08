@@ -299,7 +299,6 @@ class Printer:
 
         try:
             data = response.json()
-            print(f'[INFO] token resonse : {data}')
             token = data.get("MFP", {}).get("Token")
             if token:
                 print(f"[INFO] Got initial token for {self.ip}")
