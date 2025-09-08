@@ -4,6 +4,7 @@ import os
 import json
 from utils.http import make_request
 import time 
+from config.settings import BROWSER_COOKIES
 
 class Printer:
     """Handles single printer operations."""
@@ -22,32 +23,9 @@ class Printer:
             return
         os.makedirs(self.SESSION_FILE, exist_ok=True)
         filename = os.path.join(self.SESSION_FILE, f"{self.ip}.cookies")
-        self.session.cookies.set("loginState", "true", domain=self.ip)
-        self.session.cookies.set("menuType", "Admin", domain=self.ip)
-        self.session.cookies.set("abbrCheckCookieFlg", "true", domain=self.ip)
-
-        # Additional cookies from the browser
-        self.session.cookies.set("lang", "En", domain=self.ip)
-        self.session.cookies.set("selno", "En", domain=self.ip)
-        self.session.cookies.set("vm", "Html", domain=self.ip)
-        self.session.cookies.set("bv", "Chrome/139.0.0.0", domain=self.ip)
-        self.session.cookies.set("pf", "PC", domain=self.ip)
-        self.session.cookies.set("uatype", "NN", domain=self.ip)
-        self.session.cookies.set("favmode", "false", domain=self.ip)
-        self.session.cookies.set("usr", "", domain=self.ip)
-        self.session.cookies.set("access", "", domain=self.ip)
-        self.session.cookies.set("param", "", domain=self.ip)
-        self.session.cookies.set("key", "", domain=self.ip)
-        self.session.cookies.set("InitialTransitionScreen", "", domain=self.ip)
-        self.session.cookies.set("loginUserName", "", domain=self.ip)
-        self.session.cookies.set("hostChange", "", domain=self.ip)
-        self.session.cookies.set("sourcePage", "1", domain=self.ip)
-        self.session.cookies.set("abbrRedojobingStatus", "allow", domain=self.ip)
-        self.session.cookies.set("logoutIF", "a_user.cgi", domain=self.ip)
-        self.session.cookies.set("notChange", "", domain=self.ip)
-        self.session.cookies.set("webUI", "new", domain=self.ip)
-        self.session.cookies.set("cou", "", domain=self.ip)
-        self.session.cookies.set("adm", "", domain=self.ip)
+        
+        for name, value in BROWSER_COOKIES.items():
+            self.session.cookies.set(name, value, domain=self.ip)
 
         with open(filename, "wb") as f:
             pickle.dump(self.session.cookies, f)  # save only cookies
