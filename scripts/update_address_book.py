@@ -64,6 +64,7 @@ smbfolder_idx = header.index("SMBFolder")
 smblogin_idx = header.index("SMBLoginUser")
 smbpass_idx = header.index("SMBLoginPassword")
 searchkey_idx = header.index("SearchKey")
+use_refer_licence_idx = header.index("UseReferLicence")
 
 # Updated mapping for Group/Level
 group_idx = header.index("ReferGroupNo")         # maps to "Group"
@@ -146,6 +147,7 @@ for user in ad_users:
     # Fill Group/Level/SearchKey
     row[group_idx] = "0"
     row[level_idx] = "0"
+    row[use_refer_licence_idx] = "Level"
     row[searchkey_idx] = user.lower()
 
     smb_rows[user] = row
