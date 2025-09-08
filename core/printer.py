@@ -28,9 +28,7 @@ class Printer:
             self.session.cookies.set(name, value, domain=self.ip)
 
         with open(filename, "wb") as f:
-            pickle.dump(self.session.cookies, f)  # save only cookies
-        for cookie in self.session.cookies:
-            print(f"Saved Cookie: {cookie.name}={cookie.value}")
+            pickle.dump(self.session.cookies, f) 
         print(f"[INFO] Session saved for printer {self.ip}")
 
     def load_session(self):
@@ -40,9 +38,7 @@ class Printer:
         self.session = requests.Session()
         with open(filename, "rb") as f:
             cookies = pickle.load(f)
-            self.session.cookies.update(cookies)  # load cookies into session
-            for cookie in self.session.cookies:
-                print(f"Loaded Cookie: {cookie.name}={cookie.value}")
+            self.session.cookies.update(cookies)  
         return True
 
     def login(self, username=None, password=None):
@@ -89,8 +85,6 @@ class Printer:
         self.save_session()
         testData = self.session.cookies.get_dict()
       
-        
-        print(f"response from login: {testData}")
         if response and response.ok:
             try:
                 print(f"[INFO] Admin login successful for {self.ip}")
