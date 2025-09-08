@@ -24,9 +24,10 @@ help:
 	@echo ""
 	@echo "$(YELLOW)Actions:$(NC)"
 	@echo "  make login         - Login to all configured printers"
+	@echo "  make logout        - Logout from all configured printers"
+	@echo "  make address_book  - Get address book from all configured printers"
 	@echo ""
 	@echo "$(YELLOW)Utilities:$(NC)"
-	@echo "  make test          - Run unit tests"
 	@echo "  make clean         - Remove temporary files"
 
 # Create virtual environment
@@ -56,11 +57,6 @@ logout:
 address_book:
 	@echo "Getting Adress books"
 	$(VENV_DIR)/bin/python -m scripts.get_adress_books
-
-# Run unit tests
-test: 
-	@echo "$(GREEN)Running tests...$(NC)"
-	$(VENV_DIR)/bin/python -m unittest discover -s tests
 
 # Clean temporary files
 clean:
