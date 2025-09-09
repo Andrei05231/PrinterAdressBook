@@ -14,25 +14,13 @@ def make_request(session, url, data=None, headers=None, params=None):
         return None
     
 def send_custom_request(session, ip, h_token, url_path: str, payload: dict, expected_code: str) -> bool:
-    """
-    Send a custom import/export request to the MFP and check for expected response code.
-
-    Args:
-        session: requests.Session object
-        ip: device IP address
-        h_token: security token for request
-        url_path: API path, e.g. "_000_002_IMP007"
-        payload: dict of request parameters (without h_token, it will be added)
-        expected_code: expected response code string, e.g. "DeviceExportExec"
-
-    Returns:
-        True if the request was accepted, False otherwise
-    """
+    """Send an import/export request to the MFP and check for expected response code."""
     if not h_token:
         print(f"[WARN] No h_token available for {ip}")
         return False
 
-    # Inject token into payload
+    import copy, json
+    payload = copy.deepcopy(payload)
     payload["h_token"] = h_token
 
     url = f"http://{ip}/wcd/api/AppReqSetCustomMessage/{url_path}"
@@ -44,14 +32,27 @@ def send_custom_request(session, ip, h_token, url_path: str, payload: dict, expe
 
     try:
         data = response.json()
-        message_code = data.get("MFP", {}).get("Message", {}).get("Item", {}).get("@Code")
+        mfp = data.get("MFP", {})
+
+        # --- Case 1: normal export/import response with message code ---
+        message = mfp.get("Message")
+        message_code = None
+        if isinstance(message, dict):
+            message_code = message.get("Item", {}).get("@Code")
 
         if message_code == expected_code:
             print(f"[INFO] Request '{expected_code}' started for {ip}")
             return True
-        else:
-            print(f"[WARN] Unexpected response from {ip}: {data}")
-            return False
+
+        # --- Case 2: import "progress" redirect ---
+        if mfp.get("RedirectUrl") == "progress":
+            print(f"[INFO] Import started (redirected to progress) for {ip}")
+            return True
+
+        # --- Fallback: unexpected ---
+        print(f"[WARN] Unexpected response from {ip}: {data}")
+        return False
+
     except Exception as e:
         print(f"[ERROR] Could not parse response from {ip}: {e}")
         return False

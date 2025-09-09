@@ -61,4 +61,24 @@ class PrinterManager:
                     
             except Exception as e:
                 print(f"[ERROR] {printer.ip}: {e}")
+                
+    def import_all_address_books(self, out_dir="exports"):
+        """Import address books to all printers following the correct workflow"""
+        
+        for printer in self.printers:
+            print(f"📡 Importing address book to {printer.ip}...")
+            
+            try:
+                # Step 1: Request export
+                if not printer.request_address_book_import():
+                    print(f"❌ Failed to request import on {printer.ip}")
+                    continue
+                
+                # Step 2: Poll until ready
+                if not printer.poll_for_export_completion():
+                    print(f"❌ Import did not complete for {printer.ip}")
+                    continue
+                
+            except Exception as e:
+                print(f"[ERROR] {printer.ip}: {e}")
 

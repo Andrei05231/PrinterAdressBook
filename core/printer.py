@@ -5,7 +5,7 @@ import json
 import copy
 from utils.http import make_request, send_custom_request
 import time 
-from config.settings import BROWSER_COOKIES,LOGIN_PAYLOAD, EXPORT_PAYLOAD, IMPORT_PAYLOAD
+from config.settings import BROWSER_COOKIES,LOGIN_PAYLOAD, EXPORT_PAYLOAD, IMPORT_PAYLOAD, SMB_IP, SMB_USER, SMB_BOOK_PATH
 
 
 class Printer:
@@ -137,7 +137,29 @@ class Printer:
         )
 
 
+    def request_address_book_import(self) -> bool:
+        """Request address book import - returns True if import started successfully"""
+        if not self.load_session():
+            print(f"[WARN] No session for {self.ip}")
+            return False
 
+        if not self.h_token:
+            self.h_token = self._get_current_token()
+
+        payload = copy.deepcopy(IMPORT_PAYLOAD)
+        payload["SMB_H_HOST_NAME"] = SMB_IP
+        payload["SMB_H_USER_NAME"] = SMB_USER
+        payload["SMB_H_FILE_PATH"] = SMB_BOOK_PATH
+        payload["SMB_H_FILE_TITLE"] = f"address_book_{self.ip}.txt"
+
+        return send_custom_request(
+            self.session,
+            self.ip,
+            self.h_token,
+            "_000_002_IMP008",
+            payload,
+            "DeviceImportExec"
+        )
         
     def poll_for_export_completion(self, interval=5, max_attempts=12):
         """Poll progress until export is ready for download"""

@@ -58,6 +58,10 @@ update_book:
 	@echo "Updating Address Book with AD users"
 	$(VENV_DIR)/bin/python -m scripts.update_address_book
 
+send_book:
+	@echo "Send Address Books to printers"
+	$(VENV_DIR)/bin/python -m scripts.import_adress_books
+
 clean:
 	@echo "$(YELLOW)Cleaning temporary files...$(NC)"
 	find . -type d -name "__pycache__" -exec rm -rf {} +
