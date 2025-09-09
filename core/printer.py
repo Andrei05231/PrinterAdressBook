@@ -2,9 +2,11 @@ import requests
 import pickle
 import os
 import json
-from utils.http import make_request
+import copy
+from utils.http import make_request, send_custom_request
 import time 
-from config.settings import BROWSER_COOKIES
+from config.settings import BROWSER_COOKIES,LOGIN_PAYLOAD, EXPORT_PAYLOAD, IMPORT_PAYLOAD
+
 
 class Printer:
     """Handles single printer operations."""
@@ -50,30 +52,13 @@ class Printer:
             return False
 
         self.session = requests.Session()
-        
 
         login_url = f"http://{self.ip}/wcd/login.cgi"
 
-        # Browser-mimicking payload
-        payload = {
-            "func": "PSL_LP1_LOG",
-            "AuthType": "None",
-            "TrackType": "",
-            "ExtSvType": "0",
-            "PswcForm": "",
-            "Mode": "",
-            "publicuser": "",
-            "username": self.username,
-            "password": self.password,
-            "AuthorityType": "",
-            "R_ADM": "AdminAdmin",
-            "ExtServ": "0",
-            "ViewMode": "",
-            "BrowserMode": "",
-            "Lang": "",
-            "trackname": "",
-            "trackpassword": ""
-        }
+        # Browser-mimicking payload (imported and filled in)
+        payload = copy.deepcopy(LOGIN_PAYLOAD)
+        payload["username"] = self.username
+        payload["password"] = self.password
 
         # Optional headers if needed
         headers = {
@@ -81,19 +66,21 @@ class Printer:
         }
 
         response = make_request(self.session, login_url, data=payload, headers=headers)
-        
+
         self.save_session()
         testData = self.session.cookies.get_dict()
-      
+
         if response and response.ok:
             try:
                 print(f"[INFO] Admin login successful for {self.ip}")
-                
+
                 return True
             except Exception:
                 print(f"[WARN] Login failed for {self.ip}")
                 return False
 
+
+        
     def get_status(self):
         """Get printer status."""
         if not self.session:
@@ -129,60 +116,29 @@ class Printer:
         print(f"[WARN] Logout failed for {self.ip}")
         return False
 
-    def request_address_book_export(self):
+    def request_address_book_export(self) -> bool:
         """Request address book export - returns True if export started successfully"""
         if not self.load_session():
             print(f"[WARN] No session for {self.ip}")
             return False
-        
-        # First, get the h_token from the page or session
+
         if not self.h_token:
             self.h_token = self._get_current_token()
-        
-        if not self.h_token:
-            print(f"[WARN] No h_token available for {self.ip}")
-            return False
-        
-        url = f"http://{self.ip}/wcd/api/AppReqSetCustomMessage/_000_002_IMP007"
-        payload = {
-            "func": "PSL_AS_ADD_ADD",
-            "h_token": self.h_token,
-            "AS_ADD_H_BUT": "Export",
-            "AS_ADD_H_DUM": "",
-            "AS_AB_R_EX": "on",
-            "AS_ADD_R_FILE_TYPE": "CSV",
-            "AS_ADD_T_PSS": "",
-            "AS_ADD_R_SEL": "Abbrev",
-            "AS_ADD_H_FILE_TYPE": "",
-            "SMB_H_CHOOSE_TYPE": "",
-            "SMB_H_HOST_NAME": "",
-            "SMB_H_USER_NAME": "",
-            "SMB_H_FILE_PATH": "",
-            "SMB_H_FILE_TITLE": "",
-            
-        }
-        
-        # Send as JSON (as per your browser capture)
-        headers = {"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"}
-        response = make_request(self.session, url, data=json.dumps(payload), headers=headers)
-        
-        if not response:
-            return False
-        
-        try:
-            data = response.json()
-            # Check if export started (should show "DeviceExportExec")
-            message_code = data.get("MFP", {}).get("Message", {}).get("Item", {}).get("@Code")
-            if message_code == "DeviceExportExec":
-                print(f"[INFO] Export started for {self.ip}")
-                return True
-            else:
-                print(f"[WARN] Unexpected response from {self.ip}: {data}")
-                return False
-        except Exception as e:
-            print(f"[ERROR] Could not parse export response from {self.ip}: {e}")
-            return False
 
+        payload = copy.deepcopy(EXPORT_PAYLOAD)
+
+        return send_custom_request(
+            self.session,
+            self.ip,
+            self.h_token,
+            "_000_002_IMP007",
+            payload,
+            "DeviceExportExec"
+        )
+
+
+
+        
     def poll_for_export_completion(self, interval=5, max_attempts=12):
         """Poll progress until export is ready for download"""
         progress_url = f"http://{self.ip}/wcd/progress"

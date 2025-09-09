@@ -35,3 +35,55 @@ BROWSER_COOKIES = {
     "cou": "",
     "adm": ""
 }
+
+LOGIN_PAYLOAD = {
+    "func": "PSL_LP1_LOG",
+    "AuthType": "None",
+    "TrackType": "",
+    "ExtSvType": "0",
+    "PswcForm": "",
+    "Mode": "",
+    "publicuser": "",
+    "username": None,   # <-- placeholder
+    "password": None,   # <-- placeholder
+    "AuthorityType": "",
+    "R_ADM": "AdminAdmin",
+    "ExtServ": "0",
+    "ViewMode": "",
+    "BrowserMode": "",
+    "Lang": "",
+    "trackname": "",
+    "trackpassword": ""
+}
+
+EXPORT_PAYLOAD = {
+    "func": "PSL_AS_ADD_ADD",
+    "AS_ADD_H_BUT": "Export",
+    "AS_ADD_H_DUM": "",
+    "AS_AB_R_EX": "on",
+    "AS_ADD_R_FILE_TYPE": "CSV",
+    "AS_ADD_T_PSS": "",
+    "AS_ADD_R_SEL": "Abbrev",
+    "AS_ADD_H_FILE_TYPE": "",
+    "SMB_H_CHOOSE_TYPE": "",
+    "SMB_H_HOST_NAME": "",
+    "SMB_H_USER_NAME": "",
+    "SMB_H_FILE_PATH": "",
+    "SMB_H_FILE_TITLE": "",
+}
+
+IMPORT_PAYLOAD = {
+    "func": "PSL_AS_ADD_ADD",
+    "AS_ADD_H_BUT": "Import",
+    "AS_ADD_H_DUM": "",
+    "AS_ADD_T_PSS": "",
+    "AS_ADD_R_IMP": "AddrImportType1",
+    "AS_ADD_IMP_R_SEL": "IndividualAbbrev",
+    "AS_ADD_R_TYPE": "",
+    "SMB_H_CHOOSE_TYPE": "SMB",
+    "SMB_H_HOST_NAME": None,      # <-- placeholders
+    "SMB_H_USER_NAME": None,
+    "SMB_H_FILE_PATH": None,
+    "SMB_H_FILE_TITLE": None,
+    "AS_ADD_F_FIL": "",
+}
