@@ -242,7 +242,7 @@ class Printer:
             print(f"[ERROR] Could not parse token response: {e}")
             return None
 
-    def download_address_book(self, token, file_path="address_book.csv"):
+    def download_address_book(self, token, file_path="address_book.txt"):
         """Download the address book using the token"""
         if not token:
             print(f"[WARN] No token available for {self.ip}")

@@ -53,7 +53,7 @@ class PrinterManager:
                     continue
                 
                 # Step 4: Download file
-                file_path = f"{out_dir}/address_book_{printer.ip}.csv"
+                file_path = f"{out_dir}/address_book_{printer.ip}.txt"
                 if printer.download_address_book(token, file_path):
                     print(f"✅ Saved: {file_path}")
                 else:

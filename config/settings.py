@@ -5,6 +5,9 @@ load_dotenv()  # Load environment variables from .env
 
 ADMIN_USER = os.getenv("ADMIN_USER")
 ADMIN_PASS = os.getenv("ADMIN_PASS")
+SMB_USER = os.getenv("SMB_USER")
+SMB_PASS = os.getenv("SMB_PASS")
+SMB_IP = os.getenv("SMB_IP")
 
 BROWSER_COOKIES = {
     "loginState": "true",

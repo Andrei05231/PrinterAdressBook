@@ -25,40 +25,39 @@ help:
 	@echo "$(YELLOW)Actions:$(NC)"
 	@echo "  make login         - Login to all configured printers"
 	@echo "  make logout        - Logout from all configured printers"
-	@echo "  make address_book  - Get address book from all configured printers"
+	@echo "  make get_book      - Get address book from all configured printers"
+	@echo "  make update_book   - Update address books with AD users"
 	@echo ""
 	@echo "$(YELLOW)Utilities:$(NC)"
 	@echo "  make clean         - Remove temporary files"
 
-# Create virtual environment
 venv:
 	@echo "$(GREEN)Creating virtual environment...$(NC)"
 	python3 -m venv $(VENV_DIR)
 	@echo "$(GREEN)Virtual environment created at $(VENV_DIR)$(NC)"
 
-# Install dependencies
 install: venv
 	@echo "$(GREEN)Installing dependencies...$(NC)"
 	$(VENV_DIR)/bin/python -m pip install --upgrade pip
 	$(VENV_DIR)/bin/python -m pip install -r requirements.txt
 	@echo "$(GREEN)Dependencies installed$(NC)"
 
-# Run login script
 login:
 	@echo "$(GREEN)Logging in to all printers...$(NC)"
 	$(VENV_DIR)/bin/python -m scripts.login_all
 
-# Run logout script
 logout:
 	@echo "${(GREEN)}Logging out all printer..."
 	$(VENV_DIR)/bin/python -m scripts.logout_all
 
-# Get Adress book from all printers
-address_book:
+get_book:
 	@echo "Getting Adress books"
 	$(VENV_DIR)/bin/python -m scripts.get_adress_books
 
-# Clean temporary files
+update_book:
+	@echo "Updating Address Book with AD users"
+	$(VENV_DIR)/bin/python -m scripts.update_address_book
+
 clean:
 	@echo "$(YELLOW)Cleaning temporary files...$(NC)"
 	find . -type d -name "__pycache__" -exec rm -rf {} +
