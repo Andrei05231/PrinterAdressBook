@@ -138,62 +138,108 @@ class Printer:
 
 
     def request_address_book_import(self) -> bool:
-        """Request address book import - returns True if import started successfully"""
+        url = f"http://{self.ip}/wcd/api/AppReqSetCustomMessage/_000_002_IMP008"
+
         if not self.load_session():
             print(f"[WARN] No session for {self.ip}")
             return False
-
         if not self.h_token:
             self.h_token = self._get_current_token()
 
-        payload = copy.deepcopy(IMPORT_PAYLOAD)
-        payload["SMB_H_HOST_NAME"] = SMB_IP
-        payload["SMB_H_USER_NAME"] = SMB_USER
-        payload["SMB_H_FILE_PATH"] = SMB_BOOK_PATH
-        payload["SMB_H_FILE_TITLE"] = f"address_book_{self.ip}.txt"
+        headers = {
+            "accept": "application/json, text/javascript, */*; q=0.01",
+            "accept-encoding": "gzip, deflate",
+            "accept-language": "en-US,en;q=0.9",
+            "connection": "keep-alive",
+            "host": "10.0.52.11",
+            "origin": "http://10.0.52.11",
+            "referer": "http://10.0.52.11/wcd/spa_contents_frame.tmpl.html",
+        }
 
-        return send_custom_request(
-            self.session,
-            self.ip,
-            self.h_token,
-            "_000_002_IMP008",
-            payload,
-            "DeviceImportExec"
-        )
-        
-    def poll_for_export_completion(self, interval=5, max_attempts=12):
-        """Poll progress until export is ready for download"""
+        data = {
+            "func": "PSL_AS_ADD_ADD",
+            "h_token": self.h_token,
+            "AS_ADD_H_BUT": "Import",
+            "AS_ADD_H_DUM": "",
+            "AS_ADD_T_PSS": "",
+            "AS_ADD_R_IMP": "AddrImportType1",
+            "SMB_H_CHOOSE_TYPE": "",
+            "SMB_H_HOST_NAME": "",
+            "SMB_H_USER_NAME": "",
+            "SMB_H_FILE_PATH": "",
+            "SMB_H_FILE_TITLE": "",
+            "AS_ADD_IMP_R_SEL": "IndividualAbbrev",
+            "AS_ADD_R_TYPE": "",
+        }
+
+        files = {
+            "AS_ADD_F_FIL": open(f"exports/address_book_{self.ip}.txt", "rb")
+        }
+
+        response = requests.post(url, headers=headers, data=data, files=files)
+
+        print("Status Code:", response.status_code)
+        try:
+            print("Response JSON:", response.json())
+        except Exception:
+            print("Response Text:", response.text)
+
+        return response
+
+
+    def poll_for_job_completion(self, job_type="export", interval=5, max_attempts=12) -> bool:
         progress_url = f"http://{self.ip}/wcd/progress"
-        
+
         for attempt in range(max_attempts):
             time.sleep(interval)
-            print(f"[INFO] Checking export progress for {self.ip} (attempt {attempt + 1})")
-            
-            # POST to progress with no payload
-            response = make_request(self.session, progress_url, data={})
-            if not response:
-                continue
-            
+            print(f"[INFO] Checking {job_type} progress for {self.ip} (attempt {attempt + 1})")
+
             try:
+                response = make_request(self.session, progress_url, data={})
+                if not response:
+                    continue
+
                 data = response.json()
-                message_code = data.get("MFP", {}).get("Message", {}).get("Item", {}).get("@Code")
-                message_text = data.get("MFP", {}).get("Message", {}).get("Item", {}).get("#text")
-                
-                if message_code == "Ok_1" and message_text == "ReadyToDownload":
-                    print(f"[INFO] Export ready for download on {self.ip}")
-                    return True
-                elif message_code == "DeviceExportExec":
-                    # Still processing, continue polling
-                    continue
-                else:
-                    print(f"[WARN] Unexpected progress response from {self.ip}: {data}")
-                    continue
-                    
+                mfp = data.get("MFP", {})
+
+                message = mfp.get("Message")
+
+                message_code = None
+                message_text = None
+
+                # Safely handle Message being a dict or list or None
+                if isinstance(message, dict):
+                    message_code = message.get("Item", {}).get("@Code")
+                    message_text = message.get("Item", {}).get("#text")
+                elif isinstance(message, list) and len(message) > 0 and isinstance(message[0], dict):
+                    message_code = message[0].get("Item", {}).get("@Code")
+                    message_text = message[0].get("Item", {}).get("#text")
+                # else: message_code/message_text remain None
+
+                # --- Export ---
+                if job_type == "export":
+                    if message_code == "Ok_1" and message_text == "ReadyToDownload":
+                        print(f"[INFO] Export ready for download on {self.ip}")
+                        return True
+                    elif message_code == "DeviceExportExec":
+                        continue
+
+                # --- Import ---
+                elif job_type == "import":
+                    if message_code == "Ok_1":
+                        print(f"[INFO] Import completed successfully on {self.ip}")
+                        return True
+                    elif message_code == "DeviceImportExec":
+                        continue
+                    elif mfp.get("RedirectUrl") == "progress":
+                        # Job started, keep polling
+                        continue
+
             except Exception as e:
-                print(f"[ERROR] Could not parse progress response: {e}")
+                print(f"[WARN] Could not check {job_type} progress: {e}")
                 continue
-        
-        print(f"[WARN] Export did not complete within timeout for {self.ip}")
+
+        print(f"[WARN] {job_type.capitalize()} did not complete within timeout for {self.ip}")
         return False
 
     def get_download_token(self):
