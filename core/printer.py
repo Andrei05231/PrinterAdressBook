@@ -151,9 +151,9 @@ class Printer:
             "accept-encoding": "gzip, deflate",
             "accept-language": "en-US,en;q=0.9",
             "connection": "keep-alive",
-            "host": "10.0.52.11",
-            "origin": "http://10.0.52.11",
-            "referer": "http://10.0.52.11/wcd/spa_contents_frame.tmpl.html",
+            "host": self.ip,
+            "origin": f"http://{self.ip}",
+            "referer": f"http://{self.ip}/wcd/spa_contents_frame.tmpl.html",
         }
 
         data = {
