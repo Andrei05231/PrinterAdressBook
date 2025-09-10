@@ -176,7 +176,7 @@ class Printer:
             "AS_ADD_F_FIL": open(f"exports/address_book_{self.ip}.txt", "rb")
         }
 
-        response = requests.post(url, headers=headers, data=data, files=files)
+        response = self.session.post(url, headers=headers, data=data, files=files)
 
         print("Status Code:", response.status_code)
         try:
