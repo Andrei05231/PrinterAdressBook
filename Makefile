@@ -27,6 +27,7 @@ help:
 	@echo "  make logout        - Logout from all configured printers"
 	@echo "  make get_book      - Get address book from all configured printers"
 	@echo "  make update_book   - Update address books with AD users"
+	@echo "  make send_book     - Send modified address books to printers"
 	@echo ""
 	@echo "$(YELLOW)Utilities:$(NC)"
 	@echo "  make clean         - Remove temporary files"
