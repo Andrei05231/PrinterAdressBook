@@ -86,11 +86,14 @@ class PrinterManager:
                 print(f"[ERROR] {printer.ip}: {e}")
                 
     def delete_smb_items(self):
-        
+        """Delete existing smb items from printer, """
         for printer in self.printers:
+            
             ids = get_smb_ids(printer.ip)
             for item_id in ids :
-                print(item_id)
+                printer.delete_address_item(item_id)
+            
+            print(f"✅ Deleted smb items for printer: {printer.ip}")
                 
         
             

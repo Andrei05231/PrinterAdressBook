@@ -334,7 +334,7 @@ class Printer:
             print(f"[ERROR] Could not parse initial token response: {e}")
             return ""
         
-    def delete_address_item(slef, item_id):
+    def delete_address_item(self, item_id):
         url = f"http://{self.ip}/wcd/api/AppReqSetCustomMessage/_007_000_ABR000"
         
         if not self.load_session():
@@ -351,7 +351,7 @@ class Printer:
             "AC_ABR_H_FAV":""
         }
         
-        response = make_request(self, url, params=params)
+        response = make_request(self.session, url, params=params)
         
         if response and response.ok:
             print(f"Deleted item with id {item_id}")
