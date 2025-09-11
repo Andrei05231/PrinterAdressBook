@@ -50,11 +50,10 @@ class Printer:
         # Delete the saved cookie file if it exists
         if os.path.exists(filename):
             os.remove(filename)
-            print(f"[INFO] Saved session file deleted for printer {self.ip}")
+            print(f"[INFO] Session deleted for printer {self.ip}")
         
         # Clear the in-memory session
         self.session = None
-        print(f"[INFO] In-memory session cleared for printer {self.ip}")
 
     def login(self, username=None, password=None):
         """Log in to the printer as admin. Returns True if successful."""
@@ -80,11 +79,8 @@ class Printer:
 
         response = make_request(self.session, login_url, data=payload, headers=headers)
 
-        
-
         if response and response.ok:
             try:
-                print(f"START RESPONSE   {response.content}    END RSPONSE")
                 status = check_response(response.content)
                 if status == "200":
                     self.save_session()
@@ -130,7 +126,6 @@ class Printer:
         response = make_request(self.session, logout_url, data=payload, headers=headers)
         if response and response.ok:
             try:
-                print(f"START RESPONSE   {response.content}    END RSPONSE")
                 status = check_response(response.content)
                 if status == "200":
                     print(f"[INFO] Admin logout successful for {self.ip}")

@@ -51,7 +51,8 @@ def send_custom_request(session, ip, h_token, url_path: str, payload: dict, expe
             return True
 
         # --- Fallback: unexpected ---
-        print(f"[WARN] Unexpected response from {ip}: {data}")
+        status = check_response(response.content)
+        print(f"[WARN] Unexpected response from {ip}: {status}")
         return False
 
     except Exception as e:
