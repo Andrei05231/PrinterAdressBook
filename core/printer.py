@@ -3,7 +3,7 @@ import pickle
 import os
 import json
 import copy
-from utils.http import make_request, send_custom_request
+from utils.http import make_request, send_custom_request, check_response
 import time 
 from config.settings import BROWSER_COOKIES,LOGIN_PAYLOAD, EXPORT_PAYLOAD, IMPORT_PAYLOAD, SMB_IP, SMB_USER, SMB_BOOK_PATH
 
@@ -42,6 +42,19 @@ class Printer:
             cookies = pickle.load(f)
             self.session.cookies.update(cookies)  
         return True
+    
+    def reset_session(self):
+        """Delete everything related to the current session."""
+        filename = os.path.join(self.SESSION_FILE, f"{self.ip}.cookies")
+        
+        # Delete the saved cookie file if it exists
+        if os.path.exists(filename):
+            os.remove(filename)
+            print(f"[INFO] Saved session file deleted for printer {self.ip}")
+        
+        # Clear the in-memory session
+        self.session = None
+        print(f"[INFO] In-memory session cleared for printer {self.ip}")
 
     def login(self, username=None, password=None):
         """Log in to the printer as admin. Returns True if successful."""
@@ -67,16 +80,23 @@ class Printer:
 
         response = make_request(self.session, login_url, data=payload, headers=headers)
 
-        self.save_session()
-        testData = self.session.cookies.get_dict()
+        
 
         if response and response.ok:
             try:
-                print(f"[INFO] Admin login successful for {self.ip}")
+                print(f"START RESPONSE   {response.content}    END RSPONSE")
+                status = check_response(response.content)
+                if status == "200":
+                    self.save_session()
+                    print(f"[INFO] Admin login successful for {self.ip}")
+                    return True
+                else:
+                    print(f"[WARN] Login failed for {self.ip} due to {status}")
+                    return False
 
-                return True
-            except Exception:
-                print(f"[WARN] Login failed for {self.ip}")
+                
+            except Exception as e :
+                print(f"[WARN] Login request failed for {self.ip} due to {e}")
                 return False
 
 
@@ -109,9 +129,20 @@ class Printer:
 
         response = make_request(self.session, logout_url, data=payload, headers=headers)
         if response and response.ok:
-            print(f"[INFO] Admin logout successful for {self.ip}")
-            self.session = None
-            return True
+            try:
+                print(f"START RESPONSE   {response.content}    END RSPONSE")
+                status = check_response(response.content)
+                if status == "200":
+                    print(f"[INFO] Admin logout successful for {self.ip}")
+                    self.reset_session()
+                    return True
+                else:
+                    print(f"[WARN] Logout failed for {self.ip} due to {status}")
+                    return False
+
+            except Exception as e :
+                print(f"[WARN] Logout request failed for {self.ip} due to {e}")
+                return False
 
         print(f"[WARN] Logout failed for {self.ip}")
         return False

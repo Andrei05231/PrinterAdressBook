@@ -1,5 +1,6 @@
 import requests
 import json
+import xml.etree.ElementTree as ET
 
 def make_request(session, url, data=None, headers=None, params=None):
     try:
@@ -56,3 +57,42 @@ def send_custom_request(session, ip, h_token, url_path: str, payload: dict, expe
     except Exception as e:
         print(f"[ERROR] Could not parse response from {ip}: {e}")
         return False
+
+
+import xml.etree.ElementTree as ET
+import json
+
+def check_response(response_bytes: bytes) -> str:
+    """
+    Extracts error message from XML or JSON responses.
+    Returns:
+        - The <Item> text (XML) or JSON Item text if present.
+        - "200" if response is neither XML nor JSON (assume success).
+        - "ERROR" if something went wrong parsing known structures.
+    """
+    try:
+        response_str = response_bytes.decode('utf-8', errors='ignore')
+
+        # Try JSON first
+        if response_str.strip().startswith('{'):
+            data = json.loads(response_str)
+            try:
+                return data["MFP"]["Message"]["Item"]["#text"]
+            except (KeyError, TypeError):
+                return "ERROR"
+
+        # Then try XML
+        xml_start = response_str.find('<?xml')
+        if xml_start != -1:
+            xml_content = response_str[xml_start:]
+            root = ET.fromstring(xml_content)
+            item_tag = root.find('./Message/Item')
+            if item_tag is not None:
+                return item_tag.text
+            return "ERROR"
+
+        # Not XML or JSON → likely successful HTML/JS response
+        return "200"
+
+    except Exception:
+        return "ERROR"
