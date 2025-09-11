@@ -2,8 +2,8 @@
 from pathlib import Path
 import sys
 
-def get_smb_abbrnos(ip: str):
-    filename = Path(f"address_book_{ip}.txt")
+def get_smb_ids(ip: str):
+    filename = Path(f"exports/address_book_{ip}.txt")
 
     if not filename.exists():
         raise FileNotFoundError(f"File not found: {filename}")
@@ -42,17 +42,3 @@ def get_smb_abbrnos(ip: str):
             abbrnos.append(cols[abbrno_idx].strip())
 
     return abbrnos
-
-
-if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print(f"Usage: {sys.argv[0]} <IP>")
-        sys.exit(1)
-
-    ip = sys.argv[1]
-    try:
-        result = get_smb_abbrnos(ip)
-        print(result)
-    except Exception as e:
-        print(f"⚠️ Error: {e}")
-        sys.exit(1)

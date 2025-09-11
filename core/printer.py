@@ -333,3 +333,28 @@ class Printer:
         except Exception as e:
             print(f"[ERROR] Could not parse initial token response: {e}")
             return ""
+        
+    def delete_address_item(slef, item_id):
+        url = f"http://{self.ip}/wcd/api/AppReqSetCustomMessage/_007_000_ABR000"
+        
+        if not self.load_session():
+            print(f"[WARN] No session for {self.ip}")
+            return False
+        if not self.h_token:
+            self.h_token = self._get_current_token()
+        
+        params = {
+            "func":"PSL_AC_ABR_DEL",
+            "h_token":self.h_token,
+            "AC_ABR_H_NUM":item_id,
+            "AC_ABR_H_AKI":"Public",
+            "AC_ABR_H_FAV":""
+        }
+        
+        response = make_request(self, url, params=params)
+        
+        if response and response.ok:
+            print(f"Deleted item with id {item_id}")
+        else:
+            print(f"Could not delete item with id {item_id}")
+            

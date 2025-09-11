@@ -26,8 +26,9 @@ help:
 	@echo "  make login         - Login to all configured printers"
 	@echo "  make logout        - Logout from all configured printers"
 	@echo "  make get_book      - Get address book from all configured printers"
-	@echo "  make update_book   - Update address books with AD users"
+	@echo "  make update_book   - Update address books with AD users (endpoint is limited to only adding items, can't delete)"
 	@echo "  make send_book     - Send modified address books to printers"
+	@echo "  make delete_smbs   - Delete existing smbs (this is done because update_book can only add items)"
 	@echo ""
 	@echo "$(YELLOW)Utilities:$(NC)"
 	@echo "  make clean         - Remove temporary files"
@@ -56,12 +57,16 @@ get_book:
 	$(VENV_DIR)/bin/python -m scripts.get_adress_books
 
 update_book:
-	@echo "Updating Address Book with AD users"
+	@echo "Updating Address Book with AD users "
 	$(VENV_DIR)/bin/python -m scripts.update_address_book
 
 send_book:
-	@echo "Send Address Books to printers"
+	@echo "Sending Address Books to printers"
 	$(VENV_DIR)/bin/python -m scripts.import_adress_books
+
+delete_smbs:
+	@echo "Deleting existing smbs "
+	$(VENV_DIR)/bin/python -m scripts.delete_smbs
 
 clean:
 	@echo "$(YELLOW)Cleaning temporary files...$(NC)"

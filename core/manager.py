@@ -1,5 +1,6 @@
 from core.printer import Printer
 import os
+from utils.get_smb_ids import get_smb_ids
 
 class PrinterManager:
     """Handles multiple printers."""
@@ -64,7 +65,7 @@ class PrinterManager:
                 print(f"[ERROR] {printer.ip}: {e}")
 
 
-    def import_all_address_books(self, out_dir="exports"):
+    def import_all_address_books(self):
         """Import address books to all printers following the correct workflow"""
 
         for printer in self.printers:
@@ -83,3 +84,14 @@ class PrinterManager:
 
             except Exception as e:
                 print(f"[ERROR] {printer.ip}: {e}")
+                
+    def delete_smb_items(self):
+        
+        for printer in self.printers:
+            ids = get_smb_ids(printer.ip)
+            for item_id in ids :
+                print(item_id)
+                
+        
+            
+            
