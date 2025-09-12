@@ -22,7 +22,12 @@ help:
 	@echo "  make venv          - Create a Python virtual environment"
 	@echo "  make install       - Install dependencies"
 	@echo ""
+	@echo "$(YELLOW)Complete Adress Book Update:$(NC)"
+	@echo ""
+	@echo "  make run           - Run all the required scripts to update the address books"
+	@echo ""
 	@echo "$(YELLOW)Actions:$(NC)"
+	@echo ""
 	@echo "  make login         - Login to all configured printers"
 	@echo "  make logout        - Logout from all configured printers"
 	@echo "  make get_book      - Get address book from all configured printers"
@@ -68,6 +73,8 @@ delete_smbs:
 	@echo "Deleting existing smbs "
 	$(VENV_DIR)/bin/python -m scripts.delete_smbs
 
+run: login get_book delete_smbs update_book send_book
+	
 clean:
 	@echo "$(YELLOW)Cleaning temporary files...$(NC)"
 	find . -type d -name "__pycache__" -exec rm -rf {} +
