@@ -204,12 +204,6 @@ class Printer:
 
         response = self.session.post(url, headers=headers, data=data, files=files)
 
-        print("Status Code:", response.status_code)
-        try:
-            print("Response JSON:", response.json())
-        except Exception:
-            print("Response Text:", response.text)
-
         return response
 
 
@@ -379,8 +373,4 @@ class Printer:
         
         response = make_request(self.session, url, params=params)
         
-        if response and response.ok:
-            print(f"Deleted item with id {item_id}")
-        else:
-            print(f"Could not delete item with id {item_id}")
             
