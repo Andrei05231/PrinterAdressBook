@@ -64,7 +64,6 @@ def process_tsv(tsv_file: Path):
 
     metadata_lines = lines[:header_line]
     header = lines[header_line].split("\t")
-    print("📑 Columns found:", header)
     data_lines = lines[header_line+1:]
 
     # Column indices
