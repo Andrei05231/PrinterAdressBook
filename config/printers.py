@@ -1,5 +1,6 @@
 # List of printers; do not include passwords
 PRINTERS = [
-    {"ip": "10.0.52.15"},
+        {"ip": "127.0.0.1:5000"},
+
 ]
 
