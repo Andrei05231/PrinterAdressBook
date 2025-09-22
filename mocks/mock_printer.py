@@ -198,13 +198,25 @@ def logout():
     session_id = request.cookies.get('ID')
     
     if session_id and session_id in printer.sessions:
+        # Remove session + token
         del printer.sessions[session_id]
         if session_id in printer.h_tokens:
             del printer.h_tokens[session_id]
+        
         print(f"[MOCK] Logout successful for session: {session_id}")
-        return '<?xml version="1.0" encoding="UTF-8"?><Response><Message><Item Code="200">Logout successful</Item></Message></Response>'
+        
+        # Make <Item> text "200" so check_response returns 200
+        return (
+            '<?xml version="1.0" encoding="UTF-8"?>'
+            '<Response><Message><Item Code="200">200</Item></Message></Response>'
+        )
     
-    return '<?xml version="1.0" encoding="UTF-8"?><Response><Message><Item Code="400">No valid session</Item></Message></Response>'
+    # Failed logout
+    return (
+        '<?xml version="1.0" encoding="UTF-8"?>'
+        '<Response><Message><Item Code="400">No valid session</Item></Message></Response>'
+    )
+
 
 @app.route('/wcd/a_system_impexp.json')
 def get_initial_token():

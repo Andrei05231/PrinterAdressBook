@@ -81,7 +81,7 @@ mock_printer:
 	@echo "Creating mock printer"
 	$(VENV_DIR)/bin/python -m mocks.mock_printer
 
-run: login get_book delete_smbs update_book send_book
+run: login get_book delete_smbs update_book send_book logout
 	
 clean:
 	@echo "$(YELLOW)Cleaning temporary files...$(NC)"
