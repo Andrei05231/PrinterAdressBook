@@ -60,9 +60,6 @@ def send_custom_request(session, ip, h_token, url_path: str, payload: dict, expe
         return False
 
 
-import xml.etree.ElementTree as ET
-import json
-
 def check_response(response_bytes: bytes) -> str:
     """
     Extracts error message from XML or JSON responses.
