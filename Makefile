@@ -35,6 +35,10 @@ help:
 	@echo "  make send_book     - Send modified address books to printers"
 	@echo "  make delete_smbs   - Delete existing smbs (this is done reset the items before update_book)"
 	@echo ""
+	@echo "$(YELLOW)Mocks:$(NC)"
+	@echo ""
+	@echo "  make mock_printer  - Create mock printer at 127.0.0.1:5000"
+	@echo ""
 	@echo "$(YELLOW)Utilities:$(NC)"
 	@echo "  make clean         - Remove temporary files"
 
@@ -72,6 +76,10 @@ send_book:
 delete_smbs:
 	@echo "Deleting existing smbs "
 	$(VENV_DIR)/bin/python -m scripts.delete_smbs
+
+mock_printer:
+	@echo "Creating mock printer"
+	$(VENV_DIR)/bin/python -m mocks.mock_printer
 
 run: login get_book delete_smbs update_book send_book
 	
